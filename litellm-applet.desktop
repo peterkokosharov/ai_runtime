@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Plugin
+Name=LiteLLM Proxy
+Comment=Control LiteLLM Proxy from TDE Panel
+Icon=litellm_running
+X-TDE-Library=litellm_applet
+X-TDE-UniqueApplet=true

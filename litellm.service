@@ -1,0 +1,13 @@
+[Unit]
+Description=LiteLLM Proxy
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/petark/.local/bin/litellm --port 4000 --config /home/petark/confg-kiko.yaml
+Restart=on-failure
+RestartSec=5
+Environment=PATH=/home/petark/.local/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target

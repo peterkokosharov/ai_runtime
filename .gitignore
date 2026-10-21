@@ -1,0 +1,33 @@
+# Build directory
+build/
+
+# Compat headers (generated symlinks)
+compat_headers/
+
+# CMake generated files (in root if any)
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Object files and libraries
+*.o
+*.so
+*.la
+
+# Backup files
+*~
+*.bak
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System
+.DS_Store
+Thumbs.db
+
+# Publishing docs (for later)
+github.md
