@@ -1,0 +1,34 @@
+#!/bin/bash
+# prerm script for litellm-tde-applet
+# Runs before package removal
+
+set -e
+
+echo "=== LiteLLM TDE Applet pre-removal ==="
+
+# Stop and disable systemd user service
+if command -v systemctl >/dev/null 2>&1; then
+    if [ -n "$SUDO_USER" ]; then
+        REAL_USER="$SUDO_USER"
+    else
+        REAL_USER=$(logname 2>/dev/null || echo "$USER")
+    fi
+
+    echo "Stopping LiteLLM service for user $REAL_USER..."
+    sudo -u "$REAL_USER" systemctl --user stop litellm 2>/dev/null || true
+    sudo -u "$REAL_USER" systemctl --user disable litellm 2>/dev/null || true
+fi
+
+# Restart kicker panel to unload applet
+if command -v dcop >/dev/null 2>&1; then
+    if [ -n "$SUDO_USER" ]; then
+        REAL_USER="$SUDO_USER"
+    else
+        REAL_USER=$(logname 2>/dev/null || echo "$USER")
+    fi
+
+    echo "Restarting kicker panel..."
+    sudo -u "$REAL_USER" dcop kicker Panel restart 2>/dev/null || true
+fi
+
+echo "=== Pre-removal complete ==="

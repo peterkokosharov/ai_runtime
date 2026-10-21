@@ -405,3 +405,87 @@ LiteLLM Proxy (port 4000)
 | "Model not found" | Use model names from `config-sample.yaml` (e.g., `nvidia/nemotron-ultra`) |
 | Proxy not starting | `journalctl --user -u litellm -f` for logs |
 | Panel applet not showing | `dcop kicker Panel restart` or re-login |
+
+---
+
+## Building .deb Package (Q4OS / Debian)
+
+This project includes a `debian/` directory for building a native `.deb` package.
+
+### Quick Build
+
+```bash
+# Install build tools
+sudo apt install -y devscripts debhelper dh-make build-essential
+
+# Build package (run from project root)
+dpkg-buildpackage -us -uc -b
+
+# Result: ../litellm-tde-applet_1.0.0-1_amd64.deb
+```
+
+### Install .deb
+
+```bash
+sudo apt install ../litellm-tde-applet_1.0.0-1_amd64.deb
+```
+
+**What the package does automatically:**
+- Installs applet to `/opt/trinity/lib/trinity/`
+- Installs desktop entry to `/opt/trinity/share/apps/kicker/applets/`
+- Installs icons to `/opt/trinity/share/icons/hicolor/22x22/apps/`
+- Installs config sample to `/usr/share/doc/litellm-tde-applet/config-sample.yaml`
+- Installs LiteLLM via `pipx` (for current user)
+- Sets up systemd user service for LiteLLM proxy
+- Restarts kicker panel
+
+### After Install
+
+```bash
+# 1. Add applet to panel
+Right-click panel → Add → Applet → LiteLLM Proxy
+
+# 2. Copy config and add API keys
+cp /usr/share/doc/litellm-tde-applet/config-sample.yaml ~/Documents/config-kiko.yaml
+# Edit ~/Documents/config-kiko.yaml with your keys
+
+# 3. Check LiteLLM service
+systemctl --user status litellm
+```
+
+### For Q4OS Maintainers
+
+To add to Q4OS repositories:
+
+1. **Source package upload:**
+   ```bash
+   dput q4os ../litellm-tde-applet_1.0.0-1_source.changes
+   ```
+
+2. **Build dependencies** (in `debian/control`):
+   - `cmake`, `tdelibs14-trinity-dev`, `tdebase-trinity-dev`
+   - `libtqt3-mt-dev`, `tqt3-dev-tools`
+   - `python3-pipx`, `python3-venv`
+
+3. **Runtime dependencies:**
+   - `libtqt3-mt`, `tdelibs14-trinity`
+   - `python3-pipx` (for LiteLLM auto-updates)
+
+4. **Tested on:** Q4OS 6 (Trinity/Trixie), TDE R14
+
+### Package Structure
+
+```
+debian/
+├── control          # Package metadata & dependencies
+├── rules            # Build rules (CMake + dh)
+├── install          # File installation paths
+├── postinst         # Post-install: pipx install, service setup, panel restart
+├── prerm            # Pre-remove: stop service, restart panel
+├── changelog        # Version history
+├── compat           # Debhelper compatibility (13)
+├── install-service.sh  # Systemd service installer
+└── litellm.service     # Systemd user service template
+```
+
+> **Note:** This package is for **Q4OS with TDE/Trinity Desktop**. It installs to `/opt/trinity/` paths and uses TDE libraries. Not compatible with KDE Plasma or GNOME.

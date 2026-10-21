@@ -1,0 +1,56 @@
+#!/bin/bash
+# postinst script for litellm-tde-applet
+# Runs after package installation
+
+set -e
+
+# Get the actual user (not root)
+if [ -n "$SUDO_USER" ]; then
+    REAL_USER="$SUDO_USER"
+    USER_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+else
+    # Fallback - try to detect
+    REAL_USER=$(logname 2>/dev/null || echo "$USER")
+    USER_HOME="$HOME"
+fi
+
+echo "=== LiteLLM TDE Applet post-install ==="
+echo "User: $REAL_USER"
+echo "Home: $USER_HOME"
+
+# Install LiteLLM via pipx for the real user
+if command -v pipx >/dev/null 2>&1; then
+    echo "Installing LiteLLM via pipx..."
+    sudo -u "$REAL_USER" pipx install litellm 2>/dev/null || \
+        sudo -u "$REAL_USER" pipx upgrade litellm 2>/dev/null || \
+        echo "WARNING: Could not install/upgrade LiteLLM via pipx"
+else
+    echo "WARNING: pipx not found. Install with: sudo apt install pipx"
+fi
+
+# Install systemd user service
+if [ -f /opt/trinity/share/doc/litellm-tde-applet/install-service.sh ]; then
+    echo "Installing systemd user service..."
+    sudo -u "$REAL_USER" /opt/trinity/share/doc/litellm-tde-applet/install-service.sh 2>/dev/null || \
+        echo "WARNING: Could not install systemd service"
+elif [ -f "$USER_HOME/litellm-try/install-service.sh" ]; then
+    echo "Installing systemd user service from source..."
+    sudo -u "$REAL_USER" "$USER_HOME/litellm-try/install-service.sh" 2>/dev/null || \
+        echo "WARNING: Could not install systemd service"
+fi
+
+# Restart kicker panel to load applet
+if command -v dcop >/dev/null 2>&1; then
+    echo "Restarting kicker panel..."
+    sudo -u "$REAL_USER" dcop kicker Panel restart 2>/dev/null || \
+        echo "Note: Restart panel manually: dcop kicker Panel restart"
+fi
+
+echo ""
+echo "=== Installation complete ==="
+echo "1. Add applet: Right-click panel → Add → Applet → LiteLLM Proxy"
+echo "2. Configure: Right-click applet → Configure → Select config.yaml"
+echo "3. Check LiteLLM: systemctl --user status litellm"
+echo ""
+echo "Config sample: /opt/trinity/share/doc/litellm-tde-applet/config-sample.yaml"
+echo "Copy to: ~/Documents/config-kiko.yaml and add your API keys"

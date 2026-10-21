@@ -1,0 +1,39 @@
+Source: litellm-tde-applet
+Section: utils
+Priority: optional
+Maintainer: Peter Kokosharov <peter.kokosharov@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+ cmake,
+ tdelibs14-trinity-dev,
+ tdebase-trinity-dev,
+ libtqt3-mt-dev,
+ tqt3-dev-tools,
+ python3-pipx,
+ python3-venv
+Standards-Version: 4.6.2
+Homepage: https://github.com/peterkokosharov/litellm-tde-applet
+Vcs-Git: https://github.com/peterkokosharov/litellm-tde-applet.git
+Vcs-Browser: https://github.com/peterkokosharov/litellm-tde-applet
+
+Package: litellm-tde-applet
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libtqt3-mt,
+         tdelibs14-trinity,
+         python3-pipx,
+         python3-venv
+Recommends: pipx
+Description: TDE panel applet for controlling LiteLLM proxy
+ LiteLLM TDE Panel Applet provides native integration with the Trinity
+ Desktop Environment (TDE) kicker panel for controlling a LiteLLM proxy
+ server.
+ .
+ Features:
+  * Status icon in panel (running/stopped/error/starting)
+  * Right-click menu: Start/Stop/Restart/Configure/Show Logs/Quit
+  * Tooltip with current status and port
+  * Configuration via TDE config system
+  * Persistent settings
+ .
+ The applet manages a LiteLLM proxy process which routes AI requests
+ to free-tier APIs (Google Gemini, NVIDIA Nemotron, Groq, OpenRouter).

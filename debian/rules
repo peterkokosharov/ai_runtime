@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/opt/trinity
+
+override_dh_auto_build:
+	cd build && make -j$(nproc)
+
+override_dh_auto_install:
+	cd build && make DESTDIR=$(CURDIR)/debian/litellm-tde-applet install
+
+override_dh_install:
+	dh_install
+	# Install config sample
+	install -D -m 644 config-sample.yaml \
+		debian/litellm-tde-applet/usr/share/doc/litellm-tde-applet/config-sample.yaml
+
+override_dh_systemd_enable:
+	# Don't enable system service - it's a user service
+	dh_systemd_enable --name=litellm --user
+
+override_dh_systemd_start:
+	# Don't start system service
+	dh_systemd_start --name=litellm --user --no-start

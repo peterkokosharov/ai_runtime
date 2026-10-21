@@ -1,0 +1,6 @@
+build/litellm_applet.so  /opt/trinity/lib/trinity/
+litellm-applet.desktop  /opt/trinity/share/apps/kicker/applets/
+icons/litellm_idle.png  /opt/trinity/share/icons/hicolor/22x22/apps/
+icons/litellm_running.png  /opt/trinity/share/icons/hicolor/22x22/apps/
+icons/litellm_error.png  /opt/trinity/share/icons/hicolor/22x22/apps/
+icons/litellm_stopped.png  /opt/trinity/share/icons/hicolor/22x22/apps/

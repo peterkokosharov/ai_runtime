@@ -1,0 +1,9 @@
+litellm-tde-applet (1.0.0-1) unstable; urgency=medium
+
+  * Initial release
+  * TDE panel applet for LiteLLM proxy control
+  * Native kicker integration with status icons
+  * Systemd user service for background LiteLLM proxy
+  * Free-tier API support (Gemini, NVIDIA Nemotron, Groq, OpenRouter)
+
+ -- Peter Kokosharov <peter.kokosharov@gmail.com>  $(date -R)
