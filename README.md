@@ -80,11 +80,7 @@ systemctl --user status litellm
 journalctl --user -u litellm -f  # follow logs
 ```
 
-**Add API keys** (create `~/.config/litellm/env`):
-```bash
-OPENAI_API_KEY=sk-xxxxxxxxxxxx
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxx
-```
+**The installer creates `~/.litellm/config.yaml` and `~/.litellm/env`** — edit them to add your API keys.
 
 ### Step 2: Build & Install the Applet
 
@@ -111,8 +107,7 @@ cd ~/litellm-try/build && sudo make install && dcop kicker Panel restart
 ## Usage
 
 1. **Add to panel**: Right-click panel → Add → Applet → **LiteLLM Proxy**
-2. **Configure**: Right-click applet → Configure → Select your `config.yaml`  
-   (Default: `~/Documents/config-kiko.yaml`)
+2. **Configure**: Edit `~/.litellm/config.yaml` and add your API keys
 
 ## Project Structure
 
@@ -149,8 +144,13 @@ Port=4000
 **Use the sample file as starting point:**
 
 ```bash
-cp config-sample.yaml ~/Documents/config-kiko.yaml
-# Then edit ~/Documents/config-kiko.yaml and add your API keys
+# Option A: Manual setup
+mkdir -p ~/.litellm
+cp config-sample.yaml ~/.litellm/config.yaml
+# Edit ~/.litellm/config.yaml and add your API keys
+
+# Option B: Use install-service.sh (does this automatically)
+./install-service.sh
 ```
 
 The `config-sample.yaml` includes examples for:
@@ -281,16 +281,19 @@ This setup lets you run an AI coding assistant **completely free** using free-ti
 | **Groq** | 14400 req/day | [console.groq.com](https://console.groq.com) |
 | **OpenRouter** | Free models available | [openrouter.ai/keys](https://openrouter.ai/keys) |
 
-**Create env file:**
+**Create config and env files:**
 ```bash
-mkdir -p ~/.config/litellm
-cat > ~/.config/litellm/env << 'EOF'
+mkdir -p ~/.litellm
+cp config-sample.yaml ~/.litellm/config.yaml
+cat > ~/.litellm/env << 'EOF'
+# LiteLLM API Keys - ADD YOUR KEYS HERE
 GOOGLE_API_KEY=your_gemini_key_here
 NVIDIA_API_KEY=your_nvidia_key_here
 GROQ_API_KEY=your_groq_key_here
 OPENROUTER_API_KEY=your_openrouter_key_here
+# ANTHROPIC_API_KEY=your_key_here
 EOF
-chmod 600 ~/.config/litellm/env
+chmod 600 ~/.litellm/env
 ```
 
 ---
@@ -401,7 +404,7 @@ LiteLLM Proxy (port 4000)
 
 | Problem | Solution |
 |---------|----------|
-| "401 Unauthorized" | Check API keys in `~/.config/litellm/env` |
+| "401 Unauthorized" | Check API keys in `~/.litellm/env` |
 | "Model not found" | Use model names from `config-sample.yaml` (e.g., `nvidia/nemotron-ultra`) |
 | Proxy not starting | `journalctl --user -u litellm -f` for logs |
 | Panel applet not showing | `dcop kicker Panel restart` or re-login |
@@ -446,8 +449,9 @@ sudo apt install ../litellm-tde-applet_1.0.0-1_amd64.deb
 Right-click panel → Add → Applet → LiteLLM Proxy
 
 # 2. Copy config and add API keys
-cp /usr/share/doc/litellm-tde-applet/config-sample.yaml ~/Documents/config-kiko.yaml
-# Edit ~/Documents/config-kiko.yaml with your keys
+cp /usr/share/doc/litellm-tde-applet/config-sample.yaml ~/.litellm/config.yaml
+# Edit ~/.litellm/config.yaml with your keys
+# Also edit ~/.litellm/env and add your API keys
 
 # 3. Check LiteLLM service
 systemctl --user status litellm

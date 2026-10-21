@@ -4,16 +4,16 @@ After=network.target
 
 [Service]
 Type=simple
-# Paths use %h (home directory) - works with systemd user services
-ExecStart=%h/.local/bin/litellm --port 4000 --config %h/Documents/config-kiko.yaml
+# Config and binary in ~/.litellm/ directory
+ExecStart=%h/.local/bin/litellm --port 4000 --config %h/.litellm/config.yaml
 Restart=on-failure
 RestartSec=5
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
-# Load API keys from env file (create ~/.config/litellm/env):
+# Load API keys from env file (create ~/.litellm/env):
 #   NVIDIA_API_KEY=your_key
 #   GOOGLE_API_KEY=your_key
 #   etc.
-EnvironmentFile=-%h/.config/litellm/env
+EnvironmentFile=-%h/.litellm/env
 
 [Install]
 WantedBy=default.target
