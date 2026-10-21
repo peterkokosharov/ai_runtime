@@ -112,7 +112,7 @@ cd ~/litellm-try/build && sudo make install && dcop kicker Panel restart
 
 1. **Add to panel**: Right-click panel → Add → Applet → **LiteLLM Proxy**
 2. **Configure**: Right-click applet → Configure → Select your `config.yaml`  
-   (Default: `~/Documents/confg-kiko.yaml`)
+   (Default: `~/Documents/config-kiko.yaml`)
 
 ## Project Structure
 
@@ -139,7 +139,7 @@ File: `~/.trinity/share/config/litellmapplet.rc`
 
 ```ini
 [LiteLLMApplet]
-ConfigPath=/home/user/Documents/confg-kiko.yaml
+ConfigPath=/home/user/Documents/config-kiko.yaml
 BinaryPath=litellm
 Port=4000
 ```
@@ -149,8 +149,8 @@ Port=4000
 **Use the sample file as starting point:**
 
 ```bash
-cp config-sample.yaml ~/Documents/confg-kiko.yaml
-# Then edit ~/Documents/confg-kiko.yaml and add your API keys
+cp config-sample.yaml ~/Documents/config-kiko.yaml
+# Then edit ~/Documents/config-kiko.yaml and add your API keys
 ```
 
 The `config-sample.yaml` includes examples for:
@@ -261,3 +261,147 @@ Kicker Panel
 ## License
 
 MIT — see [LICENSE](LICENSE) file.
+
+## Complete Free Setup for Students
+
+This setup lets you run an AI coding assistant **completely free** using free-tier APIs.
+
+### Prerequisites
+- Linux (Q4OS, Debian, Ubuntu, Mint, etc.) with TDE/Trinity Desktop
+- Internet connection for API access
+
+---
+
+### Step 1: Get Free API Keys (5 minutes)
+
+| Provider | Free Tier | Get Key |
+|----------|-----------|---------|
+| **Google Gemini** | 1500 req/day, 1M tokens/min | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| **NVIDIA Nemotron** | Generous free tier | [integrate.api.nvidia.com](https://integrate.api.nvidia.com) |
+| **Groq** | 14400 req/day | [console.groq.com](https://console.groq.com) |
+| **OpenRouter** | Free models available | [openrouter.ai/keys](https://openrouter.ai/keys) |
+
+**Create env file:**
+```bash
+mkdir -p ~/.config/litellm
+cat > ~/.config/litellm/env << 'EOF'
+GOOGLE_API_KEY=your_gemini_key_here
+NVIDIA_API_KEY=your_nvidia_key_here
+GROQ_API_KEY=your_groq_key_here
+OPENROUTER_API_KEY=your_openrouter_key_here
+EOF
+chmod 600 ~/.config/litellm/env
+```
+
+---
+
+### Step 2: Install & Configure LiteLLM Proxy
+
+```bash
+# Install LiteLLM
+pipx install litellm
+
+# Copy and edit config
+cp config-sample.yaml ~/Documents/config-kiko.yaml
+# Edit ~/Documents/config-kiko.yaml if needed (defaults work)
+
+# Install systemd service (runs proxy in background)
+./install-service.sh
+systemctl --user enable --now litellm
+
+# Verify it's running
+systemctl --user status litellm
+# Should show: Active: active (running)
+```
+
+The proxy now runs on `http://127.0.0.1:4000` and routes requests to your free APIs.
+
+---
+
+### Step 3: Install This Applet (Panel Control)
+
+```bash
+# Build and install
+chmod +x install.sh && ./install.sh
+
+# Or manually:
+mkdir -p build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/opt/trinity
+make -j$(nproc)
+sudo make install
+dcop kicker Panel restart
+```
+
+**Add to panel:** Right-click panel → Add → Applet → **LiteLLM Proxy**
+
+---
+
+### Step 4: Connect Any Anthropic-Compatible Client
+
+The proxy speaks the **Anthropic API format**. Point any compatible tool to `http://127.0.0.1:4000`.
+
+#### Option A: Official Claude Code (requires paid Anthropic plan)
+```bash
+# If you have Claude Code access:
+export ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
+export ANTHROPIC_AUTH_TOKEN="sk-dummy-key"  # not used by LiteLLM
+claude
+```
+
+#### Option B: Free/Open Source Clients (recommended for students)
+
+**claude-code-oss / similar wrappers:**
+```bash
+# Many community wrappers exist that work with Anthropic-compatible endpoints
+# Search GitHub for "claude-code" + "anthropic-base-url"
+```
+
+**Any HTTP client (curl, Python, etc.):**
+```bash
+# Test the proxy directly
+curl -X POST http://127.0.0.1:4000/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: sk-dummy" \
+  -d '{
+    "model": "nvidia/nemotron-ultra",
+    "max_tokens": 100,
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+#### Option C: Use the included launcher
+```bash
+# This sets all env vars automatically
+./run-claude.sh
+# Or if installed via symlink:
+run-claude.sh
+```
+
+---
+
+### How It Works (Summary)
+
+```
+Your Editor/CLI
+       │
+       ▼ (Anthropic API format)
+LiteLLM Proxy (port 4000)
+       │
+       ├──▶ Google Gemini (free)
+       ├──▶ NVIDIA Nemotron (free)
+       ├──▶ Groq Llama (free)
+       └──▶ OpenRouter (free models)
+```
+
+**You pay $0.** The proxy routes each request to whichever free API you configured.
+
+---
+
+### Troubleshooting Free Setup
+
+| Problem | Solution |
+|---------|----------|
+| "401 Unauthorized" | Check API keys in `~/.config/litellm/env` |
+| "Model not found" | Use model names from `config-sample.yaml` (e.g., `nvidia/nemotron-ultra`) |
+| Proxy not starting | `journalctl --user -u litellm -f` for logs |
+| Panel applet not showing | `dcop kicker Panel restart` or re-login |

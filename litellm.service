@@ -4,12 +4,17 @@ After=network.target
 
 [Service]
 Type=simple
-# Update paths to match your system:
-ExecStart=/home/petark/.local/bin/litellm --port 4000 --config /home/petark/confg-kiko.yaml
+# EDIT THESE PATHS to match your system:
+# - ExecStart: path to litellm binary and config file
+# - Environment: PATH including litellm directory
+ExecStart=%h/.local/bin/litellm --port 4000 --config %h/Documents/config-kiko.yaml
 Restart=on-failure
 RestartSec=5
-Environment=PATH=/home/petark/.local/bin:/usr/local/bin:/usr/bin:/bin
-# Load API keys from env file (create ~/.config/litellm/env)
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+# Load API keys from env file (create ~/.config/litellm/env):
+#   NVIDIA_API_KEY=your_key
+#   GOOGLE_API_KEY=your_key
+#   etc.
 EnvironmentFile=-%h/.config/litellm/env
 
 [Install]
