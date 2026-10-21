@@ -1,3 +1,8 @@
+# LiteLLM TDE Panel Applet - CMake Build Configuration
+# Copyright (c) 2024 Peter Kokosharov <peter.kokosharov@gmail.com>
+# LLM: NVIDIA Nemotron 3 Ultra <noreply@nvidia.com>
+# Licensed under MIT License
+
 cmake_minimum_required(VERSION 3.10)
 project(litellm-tde-applet LANGUAGES CXX)
 
@@ -109,4 +114,9 @@ install(FILES
     icons/litellm_error.png
     icons/litellm_stopped.png
     DESTINATION ${TDE_PREFIX}/share/icons/hicolor/22x22/apps
+)
+
+# Install config sample
+install(FILES config-sample.yaml
+    DESTINATION ${TDE_PREFIX}/share/doc/litellm-tde-applet
 )

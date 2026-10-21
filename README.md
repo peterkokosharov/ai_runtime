@@ -144,25 +144,60 @@ BinaryPath=litellm
 Port=4000
 ```
 
-### LiteLLM Config Example
+### LiteLLM Config
 
-Create `~/Documents/confg-kiko.yaml`:
+**Use the sample file as starting point:**
 
-```yaml
-model_list:
-  - model_name: gpt-4o
-    litellm_params:
-      model: gpt-4o
-      api_key: os.environ/OPENAI_API_KEY
-
-general_settings:
-  port: 4000
-  host: "0.0.0.0"
-  master_key: "sk-litellm-master-key"  # Optional
-  debug: true
+```bash
+cp config-sample.yaml ~/Documents/confg-kiko.yaml
+# Then edit ~/Documents/confg-kiko.yaml and add your API keys
 ```
 
-See [LiteLLM Config Docs](https://docs.litellm.ai/docs/proxy/configs).
+The `config-sample.yaml` includes examples for:
+- NVIDIA Nemotron 3 Ultra / Super
+- Google Gemini Flash / Flash Lite
+- Anthropic Claude
+- Groq Llama
+- OpenRouter Qwen Coder
+
+See [LiteLLM Config Docs](https://docs.litellm.ai/docs/proxy/configs) for full options.
+
+### API Keys — Two Options
+
+**Option 1: Env file (recommended for systemd service)**
+- Keys stay out of config files
+- Systemd service loads them automatically via `EnvironmentFile`
+
+```bash
+# Create env file
+cat > ~/.config/litellm/env << 'EOF'
+NVIDIA_API_KEY=your_nvidia_key
+GOOGLE_API_KEY=your_google_key
+ANTHROPIC_API_KEY=your_anthropic_key
+GROQ_API_KEY=your_groq_key
+OPENROUTER_API_KEY=your_openrouter_key
+EOF
+```
+
+In `config-sample.yaml` use placeholders:
+```yaml
+api_key: "YOUR_NVIDIA_API_KEY_HERE"  # Will be replaced from env at runtime
+```
+
+**Option 2: Direct in YAML with `os.environ/`**
+- Portable config, references env vars by name
+- LiteLLM expands `os.environ/VAR_NAME` at startup
+
+```yaml
+api_key: os.environ/NVIDIA_API_KEY
+```
+
+Then export in shell or add to `~/.profile`:
+```bash
+export NVIDIA_API_KEY=your_key
+```
+
+> **Tip:** Option 1 is cleaner for systemd. Option 2 works well if running LiteLLM manually from terminal.
 
 ## Service Management
 

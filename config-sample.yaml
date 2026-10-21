@@ -1,0 +1,72 @@
+# LiteLLM Proxy Configuration - SAMPLE
+# Copy this to ~/Documents/confg-kiko.yaml and fill in your API keys
+# DO NOT commit real API keys to git!
+#
+# API KEYS - Two options:
+# 1. Env file (recommended for systemd): Put keys in ~/.config/litellm/env
+#    and use placeholders like "YOUR_NVIDIA_API_KEY_HERE" here.
+#    Systemd service loads them via EnvironmentFile.
+# 2. Direct with os.environ/: Use `api_key: os.environ/VAR_NAME` and export
+#    the variable in your shell/profile.
+
+litellm_settings:
+  drop_params: true
+  disable_end_user_caching: true
+  allowed_fails: 3
+  modify_params: true
+  caching: false
+
+model_list:
+  # NVIDIA Nemotron 3 Ultra (via NVIDIA API)
+  - model_name: nvidia/nemotron-ultra
+    litellm_params:
+      model: openai/nvidia/nemotron-3-ultra-550b-a55b
+      api_base: https://integrate.api.nvidia.com/v1
+      api_key: "YOUR_NVIDIA_API_KEY_HERE"  # Get from: https://integrate.api.nvidia.com/
+      drop_params: true
+
+  # NVIDIA Nemotron 3 Super
+  - model_name: nvidia/nemotron-super
+    litellm_params:
+      model: openai/nvidia/nemotron-3-super-120b-a12b
+      api_base: https://integrate.api.nvidia.com/v1
+      api_key: "YOUR_NVIDIA_API_KEY_HERE"
+      drop_params: true
+
+  # Google Gemini Flash
+  - model_name: gemini/gemini-flash
+    litellm_params:
+      model: gemini/gemini-1.5-flash
+      api_key: "YOUR_GOOGLE_API_KEY_HERE"  # Get from: https://aistudio.google.com/apikey
+
+  # Google Gemini Flash Lite
+  - model_name: gemini/gemini-flash-lite
+    litellm_params:
+      model: gemini/gemini-1.5-flash-8b
+      api_key: "YOUR_GOOGLE_API_KEY_HERE"
+
+  # Anthropic Claude (via OpenRouter or direct)
+  - model_name: anthropic/claude-sonnet
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: "YOUR_ANTHROPIC_API_KEY_HERE"  # Get from: https://console.anthropic.com/
+
+  # Groq Llama (fast inference)
+  - model_name: groq/llama
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_base: https://api.groq.com/openai/v1
+      api_key: "YOUR_GROQ_API_KEY_HERE"  # Get from: https://console.groq.com/
+      drop_params: true
+
+  # OpenRouter Qwen Coder (free tier available)
+  - model_name: qwen/qwen-coder
+    litellm_params:
+      model: openrouter/qwen/qwen-2.5-coder-32b:free
+      api_key: "YOUR_OPENROUTER_API_KEY_HERE"  # Get from: https://openrouter.ai/keys
+
+general_settings:
+  port: 4000
+  host: "0.0.0.0"
+  # master_key: "YOUR_MASTER_KEY_HERE"  # Optional: protect proxy with a key
+  debug: true

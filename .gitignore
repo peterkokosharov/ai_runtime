@@ -31,3 +31,9 @@ Thumbs.db
 
 # Publishing docs (for later)
 github.md
+
+# Config files with API keys (never commit!)
+confg-kiko.yaml
+config.yaml
+*.env
+.env

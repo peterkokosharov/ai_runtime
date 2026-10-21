@@ -1,3 +1,10 @@
+/*
+ * LiteLLM TDE Panel Applet
+ * Copyright (c) 2024 Peter Kokosharov <peter.kokosharov@gmail.com>
+ * LLM: NVIDIA Nemotron 3 Ultra <noreply@nvidia.com>
+ * Licensed under MIT License
+ */
+
 #include "litellm_applet.h"
 #include <tdeconfig.h>
 #include <tdeglobal.h>

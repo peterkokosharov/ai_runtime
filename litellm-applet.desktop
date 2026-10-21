@@ -1,3 +1,8 @@
+# LiteLLM TDE Panel Applet - Desktop Entry
+# Copyright (c) 2024 Peter Kokosharov <peter.kokosharov@gmail.com>
+# LLM: NVIDIA Nemotron 3 Ultra <noreply@nvidia.com>
+# Licensed under MIT License
+
 [Desktop Entry]
 Type=Plugin
 Name=LiteLLM Proxy

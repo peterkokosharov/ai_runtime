@@ -1,4 +1,8 @@
 #!/bin/bash
+# LiteLLM TDE Panel Applet - Systemd Service Installer
+# Copyright (c) 2024 Peter Kokosharov <peter.kokosharov@gmail.com>
+# LLM: NVIDIA Nemotron 3 Ultra <noreply@nvidia.com>
+# Licensed under MIT License
 # Install LiteLLM systemd user service
 # Run: ./install-service.sh
 

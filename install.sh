@@ -1,5 +1,8 @@
 #!/bin/bash
-# LiteLLM TDE Applet - Quick Install Script
+# LiteLLM TDE Panel Applet - Quick Install Script
+# Copyright (c) 2024 Peter Kokosharov <peter.kokosharov@gmail.com>
+# LLM: NVIDIA Nemotron 3 Ultra <noreply@nvidia.com>
+# Licensed under MIT License
 # Run: chmod +x install.sh && ./install.sh
 
 set -e
@@ -54,3 +57,4 @@ echo ""
 echo "=== Done! ==="
 echo "Right-click panel -> Add -> Applet -> LiteLLM Proxy"
 echo "Then right-click applet -> Configure -> Select your config.yaml"
+echo "Config sample installed at: /opt/trinity/share/doc/litellm-tde-applet/config-sample.yaml"
