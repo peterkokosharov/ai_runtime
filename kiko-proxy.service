@@ -1,0 +1,19 @@
+[Unit]
+Description=kiko-lite gateway (Anthropic API + tray management API)
+# The gateway reads provider keys from GNOME Keyring, so wait for the user session.
+After=network.target graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/kiko/gateway
+Environment=PYTHONPATH=%h/kiko/gateway
+# Fail (and let Restart retry) while the keyring is still locked or a key is missing.
+ExecStartPre=/usr/bin/env secret-tool lookup service /peterk key NVIDIA_API_KEY username peterk
+ExecStartPre=/usr/bin/env secret-tool lookup service /peterk key GEMINI_API_KEY username peterk
+ExecStart=/bin/bash %h/kiko/tray/tools/run-kiko.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

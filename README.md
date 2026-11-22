@@ -2,6 +2,123 @@
 
 TDE (Trinity Desktop Environment) panel applet for controlling LiteLLM proxy — native integration like battery/keyboard applets in the kicker panel.
 
+> **For Claude Code, use the kiko section below.** The rest of this README describes the older
+> LiteLLM/TDE setup. kiko-lite speaks the same Anthropic API on port 4000 but does not use LiteLLM,
+> a `config.yaml`, or the TDE applet.
+
+## Claude Code + kiko-lite (verified on Linux Mint 22.3)
+
+Four things are needed: **API keys in the OS keyring**, the **kiko gateway**, the **Claude Code CLI**,
+and this repo's **`run-claude-kiko.sh`**. Nothing below writes a key to disk or to git.
+
+**Fast path** (keys from step 1, then one command; manual steps follow):
+
+```bash
+git clone -b fix/mint-tray-build https://github.com/peterkokosharov/kiko.git ~/kiko
+cd ~/kiko && bash tray/tools/kiko install
+kiko doctor
+```
+
+`kiko install` asks for the keys with echo off, loads the 13 verified model aliases, writes a systemd
+**user** unit and starts the gateway. For a `.deb` instead of a checkout, see `docs/INSTALL.md` in the
+kiko repo.
+
+### 1. Get free API keys
+
+| Key | Where | Used for |
+|---|---|---|
+| `NVIDIA_API_KEY` | https://build.nvidia.com/ → sign in → API Keys | `nemotron-ultra`, `nemotron-super`, `muse-glimmer` and the other NVIDIA models |
+| `GEMINI_API_KEY` | https://aistudio.google.com/apikey → Create API key | `gemini-lite`, `gemini-tutor` (fast/simple work) |
+
+Optional, only if you want those providers: `MISTRAL_API_KEY` (https://console.mistral.ai/api-keys),
+`OPENROUTER_API_KEY` (https://openrouter.ai/keys), `GROQ_API_KEY` (https://console.groq.com/keys).
+`GITHUB_TOKEN` is only needed to push commits. On this machine Groq answers 403, so no Groq models
+are configured. If a key is pasted anywhere public, revoke it and make a new one.
+
+### 2. Store the keys in GNOME Keyring
+
+```bash
+sudo apt install -y libsecret-tools          # provides secret-tool
+git clone -b fix/mint-tray-build https://github.com/peterkokosharov/kiko.git ~/kiko
+cd ~/kiko
+bash tray/tools/setup-keys.sh
+```
+
+The script asks for each key with echo turned off; press Enter to skip one. It stores them under
+`service=/peterk`, `key=<KEY>`, `username=<your login>`, label `/peterk/<KEY>`. Verify **without
+printing the value**:
+
+```bash
+secret-tool lookup service /peterk key NVIDIA_API_KEY username "$USER" >/dev/null && echo ok
+secret-tool lookup service /peterk key GEMINI_API_KEY  username "$USER" >/dev/null && echo ok
+```
+
+Never put a key in `.env`, `config.yaml`, a shell profile, or git. The scripts use your current login
+as the keyring username, so no editing is needed on another laptop.
+
+### 3. Start the gateway and install the verified model catalog
+
+`kiko install` in the fast path already did both steps. The manual equivalent is:
+
+```bash
+cd ~/kiko
+bash tray/tools/setup-models.sh              # adds 13 tested aliases; key NAMES only
+```
+
+Then run the gateway either in the foreground **or** as a user service — not both (port 4000).
+If you used `kiko install`, skip this: it already enabled `kiko-proxy.service`. The two files
+`kiko-proxy.service` / `install-kiko-service.sh` in this repo are the older, checkout-based way to do
+the same thing; `kiko install` from the kiko repo is now the canonical installer.
+
+```bash
+# Option A: foreground, useful for debugging
+bash ~/kiko/tray/tools/run-kiko.sh
+
+# Option B: starts on login, no sudo (recommended)
+cd ~/ai_runtime && ./install-kiko-service.sh
+systemctl --user status kiko-proxy.service
+```
+
+`kiko-proxy.service` waits for the graphical session, checks that the NVIDIA and Gemini keys are
+visible in the keyring, and retries every 5 s if the keyring is still locked. Use `journalctl --user
+-u kiko-proxy -f` for logs. In another terminal:
+
+```bash
+curl -sS http://127.0.0.1:4000/health
+# {"status":"ok"}
+```
+
+The gateway exports the keys into its own process only; it never writes them to a file.
+
+### 4. Install Claude Code (no sudo, no Node needed)
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+claude --version
+```
+
+The native installer puts `claude` in `~/.local/bin`. It does not require root or npm.
+
+### 5. Run Claude through kiko
+
+```bash
+git clone https://github.com/peterkokosharov/ai_runtime.git ~/ai_runtime
+cd ~/ai_runtime
+./run-claude-kiko.sh -p 'Reply with exactly: OK'   # should print OK
+./run-claude-kiko.sh                               # interactive session
+```
+
+This repo may be private; use your GitHub credentials to clone it. `run-claude-kiko.sh` sets
+`ANTHROPIC_BASE_URL=http://127.0.0.1:4000`, a dummy auth token, and the model aliases. The real
+provider keys stay in the keyring and the gateway's own token stays in `~/.kiko/api-token` (0600).
+See `KIKO.md` for the exact model mapping, the benchmark that picked `llama-nemotron` for sonnet,
+and which environment variables were kept or dropped.
+
+On the other laptops use the matching script from `~/kiko/tray/tools/build-*.sh` and fill in your row
+in `~/kiko/docs/BUILD-MATRIX.md`.
+
 ## Quick Install (one command)
 
 ```bash
@@ -116,9 +233,13 @@ litellm-try/
 ├── CMakeLists.txt              # Build config
 ├── litellm-applet.desktop      # Kicker applet descriptor
 ├── README.md                   # This file
+├── KIKO.md                     # Claude Code ↔ kiko model mapping and checks
+├── run-claude-kiko.sh          # Claude Code launcher for the kiko gateway
+├── kiko-proxy.service          # systemd user unit for the kiko gateway
+├── install-kiko-service.sh     # installs kiko-proxy.service (no sudo)
 ├── LICENSE                     # MIT License
-├── install-service.sh          # Systemd service installer
-├── litellm.service             # Systemd service template
+├── install-service.sh          # LiteLLM systemd service installer
+├── litellm.service             # LiteLLM systemd service template
 ├── github.md                   # GitHub publishing notes
 ├── icons/                      # 22x22 PNG icons (4 states)
 └── src/
@@ -374,10 +495,11 @@ curl -X POST http://127.0.0.1:4000/v1/messages \
 
 #### Option C: Use the included launcher
 ```bash
-# This sets all env vars automatically
-./run-claude.sh
+# This sets all env vars automatically. It points Claude Code at the local
+# kiko-lite gateway (http://127.0.0.1:4000); see KIKO.md for the model mapping.
+./run-claude-kiko.sh
 # Or if installed via symlink:
-run-claude.sh
+run-claude-kiko.sh
 ```
 
 ---
