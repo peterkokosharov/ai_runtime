@@ -1,12 +1,18 @@
-# ai_runtime — Claude Code през kiko (без LiteLLM)
+# ai_runtime — LLM runtime за LiteLLM и kiko
 
 > Накратко: безплатни ключове от NVIDIA и Google → `kiko install` → `./run-claude-kiko.sh`.
 > Няма такса, няма `npm`, няма sudo, няма `config.yaml` с ключове в него.
 
-This repo used to be a TDE panel applet for the LiteLLM proxy. It now documents the lighter setup:
-a **stdlib-only kiko gateway** on `127.0.0.1:4000` and Claude Code talking to it through
-`run-claude-kiko.sh`. The old LiteLLM launcher (`run-claude.sh`) was removed; the old TDE applet
-sources are still in `src/` as legacy (see the last section).
+Тук има два начина да пуснеш локален gateway и да го управляваш от десктопа:
+
+| | Gateway | Трай / панел | Къде е проверено |
+|---|---|---|---|
+| **kiko** (по-лекият, препоръчителен) | stdlib-only, `127.0.0.1:4000` | GTK3 на Linux Mint | Mint 22.3 |
+| **LiteLLM** (старият, работи) | Python wheel + `~/.litellm/config.yaml` | TDE панел на Q4OS | Q4OS 6 / TDE R14 |
+
+Documentation below follows the kiko path: Claude Code speaks the Anthropic API directly to kiko
+through `run-claude-kiko.sh`. The old LiteLLM launcher (`run-claude.sh`) was replaced by it; the TDE
+applet sources are still in `src/` (see the last section).
 
 ## Защо kiko, не LiteLLM
 
