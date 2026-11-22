@@ -43,7 +43,7 @@ applet sources are still in `src/` (see the last section).
 
 ```bash
 sudo apt install -y libsecret-tools curl
-git clone -b fix/mint-tray-build https://github.com/peterkokosharov/kiko.git ~/kiko
+git clone https://github.com/peterkokosharov/kiko.git ~/kiko
 cd ~/kiko && bash tray/tools/kiko install
 kiko doctor
 curl -sS http://127.0.0.1:4000/health
